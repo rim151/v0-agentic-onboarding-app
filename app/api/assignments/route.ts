@@ -53,10 +53,6 @@ export async function GET(request: NextRequest) {
       data: filtered,
       note: 'Using mock data - database connection unavailable',
     } as ApiResponse);
-        error: 'Failed to fetch assignments',
-      } as ApiResponse,
-      { status: 500 }
-    );
   }
 }
 
