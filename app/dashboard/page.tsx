@@ -15,6 +15,7 @@ export default function DashboardPage() {
   });
 
   const [loading, setLoading] = useState(true);
+  const [useMockData, setUseMockData] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -42,8 +43,10 @@ export default function DashboardPage() {
           tasksCompleted: assignments.filter((a: any) => a.status === 'completed').length,
           delaysDetected: assignments.filter((a: any) => a.delay_escalated).length,
         });
+        setUseMockData(empData.note ? true : false);
       } catch (error) {
         console.error('Error fetching stats:', error);
+        setUseMockData(true);
       } finally {
         setLoading(false);
       }
@@ -98,6 +101,20 @@ export default function DashboardPage() {
 
   return (
     <div className="flex-1 space-y-6 p-6">
+      {/* Mock Data Notice */}
+      {useMockData && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-medium text-blue-900">Using Demo Data</h3>
+            <p className="text-sm text-blue-800 mt-1">
+              Database connection unavailable. Displaying sample data for demonstration purposes.
+              Connect your database in settings to use real data.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>

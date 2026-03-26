@@ -19,8 +19,8 @@ export default function AuditLogsPage() {
   const [filteredLogs, setFilteredLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [agentFilter, setAgentFilter] = useState('');
-  const [actionFilter, setActionFilter] = useState('');
+  const [agentFilter, setAgentFilter] = useState('all');
+  const [actionFilter, setActionFilter] = useState('all');
 
   useEffect(() => {
     fetchLogs();
@@ -30,8 +30,8 @@ export default function AuditLogsPage() {
     try {
       setLoading(true);
       let url = '/api/audit-logs?limit=100';
-      if (agentFilter) url += `&agentType=${agentFilter}`;
-      if (actionFilter) url += `&actionType=${actionFilter}`;
+      if (agentFilter && agentFilter !== 'all') url += `&agentType=${agentFilter}`;
+      if (actionFilter && actionFilter !== 'all') url += `&actionType=${actionFilter}`;
 
       const res = await fetch(url);
       const data = await res.json();
@@ -39,6 +39,8 @@ export default function AuditLogsPage() {
       setFilteredLogs(data.data || []);
     } catch (error) {
       console.error('Error fetching audit logs:', error);
+      setLogs([]);
+      setFilteredLogs([]);
     } finally {
       setLoading(false);
     }
@@ -104,7 +106,7 @@ export default function AuditLogsPage() {
             <SelectValue placeholder="Filter by agent" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Agents</SelectItem>
+            <SelectItem value="all">All Agents</SelectItem>
             <SelectItem value="TASK_AGENT">Task Agent</SelectItem>
             <SelectItem value="EXECUTION_AGENT">Execution Agent</SelectItem>
             <SelectItem value="MONITORING_AGENT">Monitoring Agent</SelectItem>
@@ -116,7 +118,7 @@ export default function AuditLogsPage() {
             <SelectValue placeholder="Filter by action" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Actions</SelectItem>
+            <SelectItem value="all">All Actions</SelectItem>
             <SelectItem value="GENERATE_TASKS">Generate Tasks</SelectItem>
             <SelectItem value="ASSIGN_TASK">Assign Task</SelectItem>
             <SelectItem value="UPDATE_TASK_STATUS">Update Status</SelectItem>

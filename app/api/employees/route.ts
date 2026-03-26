@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query, execute } from '@/lib/db';
 import { Employee, ApiResponse } from '@/lib/types';
 import { generateOnboardingTasks } from '@/lib/agents/task-agent';
+import { mockEmployees } from '@/lib/mock-data';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,14 +15,13 @@ export async function GET(request: NextRequest) {
       data: employees,
     } as ApiResponse<Employee[]>);
   } catch (error) {
-    console.error('[v0] Error fetching employees:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch employees',
-      } as ApiResponse,
-      { status: 500 }
-    );
+    console.error('[v0] Error fetching employees, using mock data:', error);
+    // Return mock data when database is unavailable
+    return NextResponse.json({
+      success: true,
+      data: mockEmployees,
+      note: 'Using mock data - database connection unavailable',
+    } as ApiResponse<Employee[]>);
   }
 }
 

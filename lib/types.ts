@@ -135,6 +135,9 @@ export interface AuditLog {
   assignment_id?: number;
   delay_id?: number;
   groq_response?: Record<string, any>;
+  groq_model?: string;
+  groq_prompt_tokens?: number;
+  groq_completion_tokens?: number;
   execution_time_ms?: number;
   created_at: string;
 }

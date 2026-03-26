@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, execute } from '@/lib/db';
 import { Task, ApiResponse } from '@/lib/types';
+import { mockTasks } from '@/lib/mock-data';
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,14 +31,25 @@ export async function GET(request: NextRequest) {
       data: tasks,
     } as ApiResponse<Task[]>);
   } catch (error) {
-    console.error('[v0] Error fetching tasks:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch tasks',
-      } as ApiResponse,
-      { status: 500 }
-    );
+    console.error('[v0] Error fetching tasks, using mock data:', error);
+    // Filter mock data based on parameters
+    let filtered = mockTasks;
+    const searchParams = request.nextUrl.searchParams;
+    const employeeId = searchParams.get('employeeId');
+    const status = searchParams.get('status');
+    
+    if (employeeId) {
+      filtered = filtered.filter(t => t.employee_id === parseInt(employeeId));
+    }
+    if (status) {
+      filtered = filtered.filter(t => t.status === status);
+    }
+    
+    return NextResponse.json({
+      success: true,
+      data: filtered,
+      note: 'Using mock data - database connection unavailable',
+    } as ApiResponse<Task[]>);
   }
 }
 
