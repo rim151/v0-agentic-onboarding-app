@@ -23,12 +23,28 @@ export default function EmployeesPage() {
   const fetchEmployees = async () => {
     try {
       setLoading(true);
+
       const res = await fetch('/api/employees');
-      const data = await res.json();
-      setEmployees(data.data || []);
-      setFilteredEmployees(data.data || []);
+
+      if (!res.ok) {
+        throw new Error("API failed");
+      }
+
+      const result = await res.json();
+
+      console.log("API RESULT:", result);
+
+      const employeesData = Array.isArray(result?.data) ? result.data : [];
+
+      setEmployees(employeesData);
+      setFilteredEmployees(employeesData);
+
     } catch (error) {
       console.error('Error fetching employees:', error);
+
+      // fallback safe
+      setEmployees([]);
+      setFilteredEmployees([]);
     } finally {
       setLoading(false);
     }
