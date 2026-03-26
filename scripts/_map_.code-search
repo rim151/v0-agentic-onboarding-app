@@ -1,0 +1,121 @@
+# Query: .map(
+# ContextLines: 1
+
+24 results - 14 files
+
+app/layout-app.tsx:
+  76          <nav className="flex-1 overflow-y-auto px-3 py-6 space-y-2">
+  77:           {navigationItems.map((item) => {
+  78              const Icon = item.icon;
+
+app/audit-logs/page.tsx:
+  149              <div className="space-y-3 max-h-[600px] overflow-y-auto">
+  150:               {filteredLogs.map((log) => (
+  151                  <div
+
+app/employees/page.tsx:
+  122                  <tbody>
+  {(filteredEmployees || []).map((emp) => (
+    <tr key={emp.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+      <td>{emp.first_name}</td>
+      <td>{emp.last_name}</td>
+      <td>{emp.email}</td>
+      <td>{emp.department}</td>
+    </tr>
+  ))}
+</tbody>
+
+app/onboarding/page.tsx:
+  135            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+  136:             {employees.map((emp) => (
+  137                <Button
+
+  170                <div className="space-y-3">
+  171:                 {tasks.map((task) => (
+  172                    <div
+
+  226                  },
+  227:               ].map((item) => (
+  228                  <div key={item.label}>
+
+app/tasks/page.tsx:
+   99              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  100:               {tasks.map((task) => (
+  101                  <div
+
+components/employees/add-employee-dialog.tsx:
+  162                  <SelectContent>
+  163:                   {departments.map((dept) => (
+  164                      <SelectItem key={dept} value={dept}>
+
+  197                <SelectContent>
+  198:                 {roles.map((role) => (
+  199                    <SelectItem key={role} value={role}>
+
+components/ui/chart.tsx:
+   84          __html: Object.entries(THEMES)
+   85:           .map(
+   86              ([theme, prefix]) => `
+
+   88  ${colorConfig
+   89:   .map(([key, itemConfig]) => {
+   90      const color =
+
+  181        <div className="grid gap-1.5">
+  182:         {payload.map((item, index) => {
+  183            const key = `${nameKey || item.name || item.dataKey || 'value'}`
+
+  277      >
+  278:       {payload.map((item) => {
+  279          const key = `${nameKey || item.dataKey || 'value'}`
+
+components/ui/field.tsx:
+  208        <ul className="ml-4 flex list-disc flex-col gap-1">
+  209:         {errors.map(
+  210            (error, index) =>
+
+components/ui/toaster.tsx:
+  17      <ToastProvider>
+  18:       {toasts.map(function ({ id, title, description, action, ...props }) {
+  19          return (
+
+components/ui/use-toast.ts:
+   84          ...state,
+   85:         toasts: state.toasts.map((t) =>
+   86            t.id === action.toast.id ? { ...t, ...action.toast } : t,
+
+  104          ...state,
+  105:         toasts: state.toasts.map((t) =>
+  106            t.id === toastId || toastId === undefined
+
+hooks/use-toast.ts:
+   84          ...state,
+   85:         toasts: state.toasts.map((t) =>
+   86            t.id === action.toast.id ? { ...t, ...action.toast } : t,
+
+  104          ...state,
+  105:         toasts: state.toasts.map((t) =>
+  106            t.id === toastId || toastId === undefined
+
+lib/agents/decision-agent.ts:
+  49  AVAILABLE TEAM FOR REASSIGNMENT:
+  50: ${JSON.stringify(availableTeam.map(e => ({ id: e.id, name: e.first_name + ' ' + e.last_name, position: e.position })), null, 2)}
+  51  
+
+lib/agents/execution-agent.ts:
+  10      // Build context for assignment decision
+  11:     const taskDetails = tasks.map(t => ({
+  12        id: t.id,
+
+  19  
+  20:     const employeeDetails = availableEmployees.map(e => ({
+  21        id: e.id,
+
+lib/agents/task-agent.ts:
+   56        // Fallback to default templates
+   57:       generatedTasks = templates.map((t) => ({
+   58          task_type: t.type,
+
+  140    const templates = TASK_TEMPLATES[roleType as TaskType] || [];
+  141:   return templates.map((t) => ({
+  142      task_type: t.type,
