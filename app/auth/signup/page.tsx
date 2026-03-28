@@ -191,7 +191,7 @@ export default function Page() {
                   {/* Footer */}
                   <div className="mt-6 text-center border-t pt-6">
                     <p className="text-sm">
-                      Already have an account?{' '}
+                      Already have an account?
                       <Link href="/auth/login" className="text-blue-600 underline">
                         Sign in
                       </Link>
