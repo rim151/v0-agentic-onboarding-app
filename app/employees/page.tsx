@@ -41,8 +41,6 @@ export default function EmployeesPage() {
 
     } catch (error) {
       console.error('Error fetching employees:', error);
-
-      // fallback safe
       setEmployees([]);
       setFilteredEmployees([]);
     } finally {
@@ -52,12 +50,14 @@ export default function EmployeesPage() {
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
+
     const filtered = employees.filter(
       (emp) =>
-        emp.first_name.toLowerCase().includes(term.toLowerCase()) ||
-        emp.last_name.toLowerCase().includes(term.toLowerCase()) ||
-        emp.email.toLowerCase().includes(term.toLowerCase())
+        (emp.first_name || '').toLowerCase().includes(term.toLowerCase()) ||
+        (emp.last_name || '').toLowerCase().includes(term.toLowerCase()) ||
+        (emp.email || '').toLowerCase().includes(term.toLowerCase())
     );
+
     setFilteredEmployees(filtered);
   };
 
@@ -79,7 +79,6 @@ export default function EmployeesPage() {
 
   return (
     <div className="flex-1 space-y-6 p-4 md:p-6">
-      {/* Header */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Employees</h1>
@@ -94,7 +93,6 @@ export default function EmployeesPage() {
         </Button>
       </div>
 
-      {/* Search */}
       <div className="relative w-full">
         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
@@ -105,7 +103,6 @@ export default function EmployeesPage() {
         />
       </div>
 
-      {/* Employee List */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg md:text-xl">Employee List</CardTitle>
@@ -113,6 +110,7 @@ export default function EmployeesPage() {
             {filteredEmployees.length} employees
           </CardDescription>
         </CardHeader>
+
         <CardContent className="overflow-hidden">
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">
@@ -124,37 +122,48 @@ export default function EmployeesPage() {
             </div>
           ) : (
             <>
-              {/* Desktop Table */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="text-left py-3 px-4 font-medium text-sm">Name</th>
-                      <th className="text-left py-3 px-4 font-medium text-sm">Email</th>
-                      <th className="text-left py-3 px-4 font-medium text-sm">Department</th>
-                      <th className="text-left py-3 px-4 font-medium text-sm">Position</th>
-                      <th className="text-left py-3 px-4 font-medium text-sm">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-sm">Start Date</th>
+                      <th className="text-left py-3 px-4 text-sm">Name</th>
+                      <th className="text-left py-3 px-4 text-sm">Email</th>
+                      <th className="text-left py-3 px-4 text-sm">Department</th>
+                      <th className="text-left py-3 px-4 text-sm">Position</th>
+                      <th className="text-left py-3 px-4 text-sm">Status</th>
+                      <th className="text-left py-3 px-4 text-sm">Start Date</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {filteredEmployees.map((emp) => (
-                      <tr key={emp.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                      <tr key={emp.id} className="border-b hover:bg-muted/50">
                         <td className="py-3 px-4 text-sm font-medium">
-                          {emp.first_name} {emp.last_name}
+                          {emp.first_name || "No"} {emp.last_name || "Name"}
                         </td>
+
                         <td className="py-3 px-4 text-sm text-muted-foreground">
-                          {emp.email}
+                          {emp.email || "No Email"}
                         </td>
-                        <td className="py-3 px-4 text-sm">{emp.department}</td>
-                        <td className="py-3 px-4 text-sm">{emp.position}</td>
+
                         <td className="py-3 px-4 text-sm">
-                          <Badge className={getStatusBadgeColor(emp.onboarding_status)}>
-                            {emp.onboarding_status.replace('_', ' ')}
+                          {emp.department || "N/A"}
+                        </td>
+
+                        <td className="py-3 px-4 text-sm">
+                          {emp.position || "N/A"}
+                        </td>
+
+                        <td className="py-3 px-4 text-sm">
+                          <Badge className={getStatusBadgeColor(emp.onboarding_status || '')}>
+                            {(emp.onboarding_status || '').replace('_', ' ')}
                           </Badge>
                         </td>
+
                         <td className="py-3 px-4 text-sm text-muted-foreground">
-                          {new Date(emp.start_date).toLocaleDateString()}
+                          {emp.start_date
+                            ? new Date(emp.start_date).toLocaleDateString()
+                            : "N/A"}
                         </td>
                       </tr>
                     ))}
@@ -162,33 +171,42 @@ export default function EmployeesPage() {
                 </table>
               </div>
 
-              {/* Mobile Card View */}
               <div className="md:hidden space-y-3">
                 {filteredEmployees.map((emp) => (
-                  <div key={emp.id} className="border border-border rounded-lg p-4 space-y-2">
+                  <div key={emp.id} className="border rounded-lg p-4 space-y-2">
                     <div className="flex justify-between items-start gap-2">
                       <div>
                         <p className="font-semibold text-sm">
-                          {emp.first_name} {emp.last_name}
+                          {emp.first_name || "No"} {emp.last_name || "Name"}
                         </p>
-                        <p className="text-xs text-muted-foreground">{emp.email}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {emp.email || "No Email"}
+                        </p>
                       </div>
-                      <Badge className={getStatusBadgeColor(emp.onboarding_status)}>
-                        {emp.onboarding_status.replace('_', ' ')}
+
+                      <Badge className={getStatusBadgeColor(emp.onboarding_status || '')}>
+                        {(emp.onboarding_status || '').replace('_', ' ')}
                       </Badge>
                     </div>
+
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div>
                         <p className="text-muted-foreground">Department</p>
-                        <p className="font-medium">{emp.department}</p>
+                        <p>{emp.department || "N/A"}</p>
                       </div>
+
                       <div>
                         <p className="text-muted-foreground">Position</p>
-                        <p className="font-medium">{emp.position}</p>
+                        <p>{emp.position || "N/A"}</p>
                       </div>
+
                       <div className="col-span-2">
                         <p className="text-muted-foreground">Start Date</p>
-                        <p className="font-medium">{new Date(emp.start_date).toLocaleDateString()}</p>
+                        <p>
+                          {emp.start_date
+                            ? new Date(emp.start_date).toLocaleDateString()
+                            : "N/A"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -199,7 +217,6 @@ export default function EmployeesPage() {
         </CardContent>
       </Card>
 
-      {/* Add Employee Dialog */}
       <AddEmployeeDialog
         open={showAddDialog}
         onOpenChange={setShowAddDialog}
