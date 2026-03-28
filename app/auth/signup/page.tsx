@@ -47,7 +47,6 @@ export default function Page() {
     }
 
     try {
-      // Allow demo credentials signup
       if (email === DEMO_CREDENTIALS.email && password === DEMO_CREDENTIALS.password) {
         setDemoAuth(email, password)
         setSuccess('Account created successfully!')
@@ -57,7 +56,6 @@ export default function Page() {
         return
       }
 
-      // Try to create account via Supabase
       const supabase = createClient()
       const { error } = await supabase.auth.signUp({
         email,
@@ -68,9 +66,8 @@ export default function Page() {
             `${window.location.origin}/protected`,
         },
       })
-      
+
       if (error) {
-        // If Supabase fails, suggest demo account
         if (error.message.includes('already registered')) {
           setError(`Email already registered. Try demo: ${DEMO_CREDENTIALS.email}`)
         } else {
@@ -78,7 +75,7 @@ export default function Page() {
         }
         return
       }
-      
+
       router.push('/auth/signup-success')
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : 'An error occurred'
@@ -99,128 +96,114 @@ export default function Page() {
   return (
     <>
       <SplashScreen onComplete={() => setShowSplash(false)} />
+
       {!showSplash && (
-      <div className="flex min-h-svh w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
-      <div className="w-full max-w-md">
-        <div className="flex flex-col gap-8">
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <div className="flex justify-center">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-600 to-teal-600 flex items-center justify-center">
-                <span className="text-white font-bold text-xl">✓</span>
-              </div>
-            </div>
-            <h1 className="text-3xl font-bold text-gray-900">Employee Onboarding</h1>
-            <p className="text-gray-600">Multi-Agent AI System</p>
-          </div>
+        <div className="flex min-h-svh w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
+          <div className="w-full max-w-md">
+            <div className="flex flex-col gap-8">
 
-          {/* Signup Card */}
-          <Card className="shadow-lg border-0">
-            <CardHeader className="space-y-2">
-              <CardTitle className="text-2xl">Create Account</CardTitle>
-              <CardDescription className="text-base">
-                Set up your onboarding system account
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {/* Demo Info Box */}
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex gap-3">
-                  <AlertCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <div className="text-sm">
-                    <p className="font-medium text-green-900 mb-2">Quick Start</p>
-                    <p className="text-green-800 text-xs mb-3">
-                      Use demo credentials to explore immediately:
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={useDemoCredentials}
-                      className="w-full border-green-600 text-green-700 hover:bg-green-50"
-                    >
-                      Use Demo: admin@company.com / 12345
+              {/* Header */}
+              <div className="text-center space-y-2">
+                <div className="flex justify-center">
+                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-600 to-teal-600 flex items-center justify-center">
+                    <span className="text-white font-bold text-xl">✓</span>
+                  </div>
+                </div>
+                <h1 className="text-3xl font-bold text-gray-900">Employee Onboarding</h1>
+                <p className="text-gray-600">Multi-Agent AI System</p>
+              </div>
+
+              {/* Card */}
+              <Card className="shadow-lg border-0">
+                <CardHeader>
+                  <CardTitle className="text-2xl">Create Account</CardTitle>
+                  <CardDescription>
+                    Set up your onboarding system account
+                  </CardDescription>
+                </CardHeader>
+
+                <CardContent>
+
+                  {/* Demo Box */}
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex gap-3">
+                      <AlertCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                      <div className="text-sm">
+                        <p className="font-medium text-green-900 mb-2">Quick Start</p>
+                        <p className="text-green-800 text-xs mb-3">
+                          Use demo credentials:
+                        </p>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={useDemoCredentials}
+                          className="w-full"
+                        >
+                          Use Demo: admin@company.com / 12345
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* FORM */}
+                  <form onSubmit={handleSignUp} className="space-y-6">
+
+                    <div className="space-y-2">
+                      <Label>Email</Label>
+                      <Input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Password</Label>
+                      <Input
+                        type="password"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Confirm Password</Label>
+                      <Input
+                        type="password"
+                        required
+                        value={repeatPassword}
+                        onChange={(e) => setRepeatPassword(e.target.value)}
+                      />
+                    </div>
+
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
+                    {success && <p className="text-green-500 text-sm">{success}</p>}
+
+                    <Button type="submit" disabled={isLoading} className="w-full">
+                      {isLoading ? 'Creating...' : 'Create Account'}
                     </Button>
-                  </div>
-                </div>
-              </div>
 
-              <form onSubmit={handleSignUp} className="space-y-6">
-                <div className="flex flex-col gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-gray-700 font-medium">Email Address</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="admin@company.com"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="h-11 border-gray-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="••••••••"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="h-11 border-gray-200"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="repeat-password" className="text-gray-700 font-medium">Confirm Password</Label>
-                    <Input
-                      id="repeat-password"
-                      type="password"
-                      placeholder="••••••••"
-                      required
-                      value={repeatPassword}
-                      onChange={(e) => setRepeatPassword(e.target.value)}
-                      className="h-11 border-gray-200"
-                    />
-                  </div>
-                  {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                      <p className="text-sm text-red-700">{error}</p>
-                    </div>
-                  )}
-                  {success && (
-                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                      <p className="text-sm text-green-700">{success}</p>
-                    </div>
-                  )}
-                  <Button 
-                    type="submit" 
-                    className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Creating account...' : 'Create Account'}
-                  </Button>
-                </div>
-              </form>
+                  </form>
 
-              {/* Footer */}
-              <div className="mt-6 text-center space-y-3 border-t border-gray-200 pt-6">
-                <p className="text-sm text-gray-600">
-                  Already have an account?{' '}
-                  <Link
-                    href="/auth/login"
-                    className="font-semibold text-blue-600 hover:text-blue-700 underline underline-offset-2 transition-colors"
-                  >
-                    Sign in
-                  </Link>
-                </p>
-              </div>
-              </form>
-            </CardContent>
-          </Card>
+                  {/* Footer */}
+                  <div className="mt-6 text-center border-t pt-6">
+                    <p className="text-sm">
+                      Already have an account?
+                      <Link href="/auth/login" className="text-blue-600 underline">
+                        Sign in
+                      </Link>
+                    </p>
+                  </div>
+
+                </CardContent>
+              </Card>
+
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
       )}
     </>
   )

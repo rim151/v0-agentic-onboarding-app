@@ -1,60 +1,60 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query, execute } from '@/lib/db';
+import { createClient } from '@/lib/supabase/server';
 import { Task, ApiResponse } from '@/lib/types';
-import { mockTasks } from '@/lib/mock-data';
 
 export async function GET(request: NextRequest) {
   try {
+    const supabase = await createClient();
+    
     const searchParams = request.nextUrl.searchParams;
     const employeeId = searchParams.get('employeeId');
     const status = searchParams.get('status');
 
-    let sql = 'SELECT * FROM tasks WHERE 1=1';
-    const params: any[] = [];
+    let query = supabase
+      .from('tasks')
+      .select('*')
+      .order('due_date', { ascending: true });
 
     if (employeeId) {
-      sql += ' AND employee_id = ?';
-      params.push(parseInt(employeeId));
+      query = query.eq('employee_id', employeeId);
     }
 
     if (status) {
-      sql += ' AND status = ?';
-      params.push(status);
+      query = query.eq('status', status);
     }
 
-    sql += ' ORDER BY due_date ASC, priority DESC';
+    const { data, error } = await query;
 
-    const tasks = await query<Task>(sql, params);
+    if (error) {
+      console.error('[v0] Error fetching tasks:', error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to fetch tasks',
+        } as ApiResponse,
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
-      data: tasks,
+      data: data || [],
     } as ApiResponse<Task[]>);
   } catch (error) {
-    console.error('[v0] Error fetching tasks, using mock data:', error);
-    // Filter mock data based on parameters
-    let filtered = mockTasks;
-    const searchParams = request.nextUrl.searchParams;
-    const employeeId = searchParams.get('employeeId');
-    const status = searchParams.get('status');
-    
-    if (employeeId) {
-      filtered = filtered.filter(t => t.employee_id === parseInt(employeeId));
-    }
-    if (status) {
-      filtered = filtered.filter(t => t.status === status);
-    }
-    
-    return NextResponse.json({
-      success: true,
-      data: filtered,
-      note: 'Using mock data - database connection unavailable',
-    } as ApiResponse<Task[]>);
+    console.error('[v0] Error fetching tasks:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Failed to fetch tasks',
+      } as ApiResponse,
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    const supabase = await createClient();
     const body = await request.json();
     const { employee_id, task_type, title, description, required_skills, priority, due_date } = body;
 
@@ -69,12 +69,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if employee exists
-    const employee = await query(
-      'SELECT id FROM employees WHERE id = ?',
-      [employee_id]
-    );
+    const { data: employee, error: empError } = await supabase
+      .from('employees')
+      .select('id')
+      .eq('id', employee_id)
+      .single();
 
-    if (employee.length === 0) {
+    if (empError || !employee) {
       return NextResponse.json(
         {
           success: false,
@@ -84,21 +85,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await execute(
-      `INSERT INTO tasks (employee_id, task_type, title, description, required_skills, priority, status, due_date)
-       VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)`,
-      [employee_id, task_type, title, description || null, required_skills || null, priority || 'MEDIUM', due_date]
-    );
+    const { data: task, error } = await supabase
+      .from('tasks')
+      .insert({
+        employee_id,
+        task_type,
+        title,
+        description: description || null,
+        required_skills: required_skills || null,
+        priority: priority || 'MEDIUM',
+        status: 'pending',
+        due_date,
+      })
+      .select()
+      .single();
 
-    const newTask = await query<Task>(
-      'SELECT * FROM tasks WHERE id = ?',
-      [(result as any).insertId]
-    );
+    if (error) throw error;
 
     return NextResponse.json(
       {
         success: true,
-        data: newTask[0],
+        data: task,
         message: 'Task created successfully',
       } as ApiResponse<Task>,
       { status: 201 }
