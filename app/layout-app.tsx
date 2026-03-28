@@ -51,15 +51,21 @@ const navigationItems = [
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Hide sidebar on auth pages
+  const isAuthPage = pathname?.includes('/auth');
+  if (isAuthPage) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="flex h-screen bg-background">
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-sidebar text-sidebar-foreground transition-all duration-300 ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-sidebar text-sidebar-foreground transition-all duration-300 overflow-y-auto ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } lg:relative lg:translate-x-0`}
+        }`}
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-sidebar-border px-6 py-6">
@@ -107,14 +113,18 @@ export function AppLayout({ children }: { children: ReactNode }) {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
         <div className="bg-background border-b border-border px-6 py-4 flex items-center justify-between">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden text-foreground hover:bg-muted rounded p-2"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-          <div className="text-sm text-muted-foreground">
-            Employee Onboarding System with Multi-Agent AI
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="text-foreground hover:bg-muted rounded p-2 transition-colors"
+              aria-label="Toggle sidebar"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div>
+              <h2 className="text-lg font-bold text-foreground">OnboardAI</h2>
+              <p className="text-xs text-muted-foreground">Intelligent Employee Onboarding</p>
+            </div>
           </div>
         </div>
 

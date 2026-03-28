@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import SplashScreen from '@/components/splash-screen'
 
 export default function Page() {
   const [email, setEmail] = useState('')
@@ -21,6 +22,7 @@ export default function Page() {
   const [repeatPassword, setRepeatPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showSplash, setShowSplash] = useState(true)
   const router = useRouter()
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -55,7 +57,10 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
+    <>
+      <SplashScreen onComplete={() => setShowSplash(false)} />
+      {!showSplash && (
+      <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           <Card>
@@ -121,5 +126,7 @@ export default function Page() {
         </div>
       </div>
     </div>
+      )}
+    </>
   )
 }

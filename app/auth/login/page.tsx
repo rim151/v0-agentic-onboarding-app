@@ -14,12 +14,14 @@ import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import SplashScreen from '@/components/splash-screen'
 
 export default function Page() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [showSplash, setShowSplash] = useState(true)
   const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -48,7 +50,10 @@ export default function Page() {
   }
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
+    <>
+      <SplashScreen onComplete={() => setShowSplash(false)} />
+      {!showSplash && (
+      <div className="flex min-h-svh w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6">
       <div className="w-full max-w-md">
         <div className="flex flex-col gap-8">
           {/* Header */}
@@ -137,5 +142,7 @@ export default function Page() {
         </div>
       </div>
     </div>
+      )}
+    </>
   )
 }
