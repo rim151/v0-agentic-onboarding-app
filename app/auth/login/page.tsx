@@ -13,24 +13,49 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import SplashScreen from '@/components/splash-screen'
+import { isDemoAuthValid, setDemoAuth } from '@/lib/demo-auth'
+import { AlertCircle, Info } from 'lucide-react'
 
 export default function Page() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('admin@company.com')
+  const [password, setPassword] = useState('12345')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [showSplash, setShowSplash] = useState(true)
+  const [supabaseConnected, setSupabaseConnected] = useState(true)
   const router = useRouter()
+
+  useEffect(() => {
+    // Check if Supabase is accessible
+    const checkSupabase = async () => {
+      try {
+        const supabase = createClient()
+        const { data } = await supabase.auth.getSession()
+        setSupabaseConnected(true)
+      } catch {
+        setSupabaseConnected(false)
+      }
+    }
+    checkSupabase()
+  }, [])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
-    const supabase = createClient()
     setIsLoading(true)
     setError(null)
 
     try {
+      // Check if it's demo credentials first
+      if (isDemoAuthValid(email, password)) {
+        setDemoAuth(email, password)
+        router.push('/dashboard')
+        return
+      }
+
+      // Try Supabase auth
+      const supabase = createClient()
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -40,10 +65,24 @@ export default function Page() {
             `${window.location.origin}/protected`,
         },
       })
-      if (error) throw error
+      
+      if (error) {
+        // If Supabase fails and it's not a network error, suggest demo login
+        if (!supabaseConnected || email === 'admin@company.com') {
+          setError('Try demo login: Use admin@company.com / 12345')
+          return
+        }
+        throw error
+      }
+      
       router.push('/dashboard')
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+      const errorMsg = error instanceof Error ? error.message : 'An error occurred'
+      if (errorMsg.includes('Invalid login credentials')) {
+        setError('Invalid credentials. Demo: admin@company.com / 12345')
+      } else {
+        setError(errorMsg)
+      }
     } finally {
       setIsLoading(false)
     }
@@ -76,6 +115,20 @@ export default function Page() {
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Demo Info Box */}
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex gap-3">
+                <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-blue-900">Demo Credentials</p>
+                  <p className="text-blue-800 mt-1">
+                    Email: <code className="bg-white px-2 py-1 rounded font-mono">admin@company.com</code>
+                  </p>
+                  <p className="text-blue-800">
+                    Password: <code className="bg-white px-2 py-1 rounded font-mono">12345</code>
+                  </p>
+                </div>
+              </div>
+
               <form onSubmit={handleLogin} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-gray-700 font-medium">
