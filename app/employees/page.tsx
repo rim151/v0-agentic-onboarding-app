@@ -78,16 +78,16 @@ export default function EmployeesPage() {
   };
 
   return (
-    <div className="flex-1 space-y-6 p-6">
+    <div className="flex-1 space-y-6 p-4 md:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Employees</h1>
-          <p className="text-muted-foreground mt-2">Manage employee onboarding</p>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Employees</h1>
+          <p className="text-muted-foreground mt-2 text-sm md:text-base">Manage employee onboarding</p>
         </div>
         <Button
           onClick={() => setShowAddDialog(true)}
-          className="bg-primary hover:bg-primary/90"
+          className="bg-primary hover:bg-primary/90 w-full md:w-auto"
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Employee
@@ -95,11 +95,11 @@ export default function EmployeesPage() {
       </div>
 
       {/* Search */}
-      <div className="relative">
+      <div className="relative w-full">
         <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search by name or email..."
-          className="pl-10"
+          className="pl-10 w-full"
           value={searchTerm}
           onChange={(e) => handleSearch(e.target.value)}
         />
@@ -108,12 +108,12 @@ export default function EmployeesPage() {
       {/* Employee List */}
       <Card>
         <CardHeader>
-          <CardTitle>Employee List</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-lg md:text-xl">Employee List</CardTitle>
+          <CardDescription className="text-sm">
             {filteredEmployees.length} employees
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-hidden">
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">
               Loading employees...
@@ -123,42 +123,78 @@ export default function EmployeesPage() {
               No employees found
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border">
-                    <th className="text-left py-3 px-4 font-medium text-sm">Name</th>
-                    <th className="text-left py-3 px-4 font-medium text-sm">Email</th>
-                    <th className="text-left py-3 px-4 font-medium text-sm">Department</th>
-                    <th className="text-left py-3 px-4 font-medium text-sm">Position</th>
-                    <th className="text-left py-3 px-4 font-medium text-sm">Status</th>
-                    <th className="text-left py-3 px-4 font-medium text-sm">Start Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredEmployees.map((emp) => (
-                    <tr key={emp.id} className="border-b border-border hover:bg-muted/50 transition-colors">
-                      <td className="py-3 px-4 text-sm font-medium">
-                        {emp.first_name} {emp.last_name}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-muted-foreground">
-                        {emp.email}
-                      </td>
-                      <td className="py-3 px-4 text-sm">{emp.department}</td>
-                      <td className="py-3 px-4 text-sm">{emp.position}</td>
-                      <td className="py-3 px-4 text-sm">
-                        <Badge className={getStatusBadgeColor(emp.onboarding_status)}>
-                          {emp.onboarding_status.replace('_', ' ')}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-4 text-sm text-muted-foreground">
-                        {new Date(emp.start_date).toLocaleDateString()}
-                      </td>
+            <>
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-3 px-4 font-medium text-sm">Name</th>
+                      <th className="text-left py-3 px-4 font-medium text-sm">Email</th>
+                      <th className="text-left py-3 px-4 font-medium text-sm">Department</th>
+                      <th className="text-left py-3 px-4 font-medium text-sm">Position</th>
+                      <th className="text-left py-3 px-4 font-medium text-sm">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-sm">Start Date</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {filteredEmployees.map((emp) => (
+                      <tr key={emp.id} className="border-b border-border hover:bg-muted/50 transition-colors">
+                        <td className="py-3 px-4 text-sm font-medium">
+                          {emp.first_name} {emp.last_name}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-muted-foreground">
+                          {emp.email}
+                        </td>
+                        <td className="py-3 px-4 text-sm">{emp.department}</td>
+                        <td className="py-3 px-4 text-sm">{emp.position}</td>
+                        <td className="py-3 px-4 text-sm">
+                          <Badge className={getStatusBadgeColor(emp.onboarding_status)}>
+                            {emp.onboarding_status.replace('_', ' ')}
+                          </Badge>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-muted-foreground">
+                          {new Date(emp.start_date).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-3">
+                {filteredEmployees.map((emp) => (
+                  <div key={emp.id} className="border border-border rounded-lg p-4 space-y-2">
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <p className="font-semibold text-sm">
+                          {emp.first_name} {emp.last_name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{emp.email}</p>
+                      </div>
+                      <Badge className={getStatusBadgeColor(emp.onboarding_status)}>
+                        {emp.onboarding_status.replace('_', ' ')}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <p className="text-muted-foreground">Department</p>
+                        <p className="font-medium">{emp.department}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Position</p>
+                        <p className="font-medium">{emp.position}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-muted-foreground">Start Date</p>
+                        <p className="font-medium">{new Date(emp.start_date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
