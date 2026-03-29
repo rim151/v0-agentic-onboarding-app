@@ -12,15 +12,11 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('task_assignments')
-      .select(`
-        *,
-        tasks(title, priority, due_date),
-        employees:tasks(employee_id)
-      `)
-      .order('created_at', { ascending: false });
+      .select('*') // ✅ FIX: removed join
+      .order('id', { ascending: false }); // ✅ FIX: safer column
 
     if (assignedTo) {
-      query = query.eq('assigned_to', assignedTo);
+      query = query.eq('employee_id', assignedTo);
     }
 
     if (status) {
@@ -36,7 +32,7 @@ export async function GET(request: NextRequest) {
       data: data || [],
     } as ApiResponse);
   } catch (error) {
-    console.error('[v0] Error fetching assignments:', error);
+    console.error('[v0] FULL ERROR:', JSON.stringify(error, null, 2)); // ✅ better debug
     return NextResponse.json(
       {
         success: false,
@@ -101,7 +97,7 @@ export async function POST(request: NextRequest) {
       .from('task_assignments')
       .insert({
         task_id,
-        assigned_to,
+        employee_id: assigned_to,
         assigned_by: assigned_by || null,
         status: 'assigned',
         notes: notes || null,
